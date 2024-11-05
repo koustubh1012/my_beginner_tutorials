@@ -4,9 +4,9 @@
  * @brief This file contains a simple ROS2 cpp publisher node
  * @version 0.1
  * @date 2024-11-04
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 #include <chrono>
 #include <functional>
@@ -21,20 +21,16 @@ using namespace std::chrono_literals;
 /* This example creates a subclass of Node and uses std::bind() to register a
  * member function as a callback from the timer. */
 
-class MinimalPublisher : public rclcpp::Node
-{
-public:
-  MinimalPublisher()
-  : Node("minimal_publisher"), count_(0)
-  {
+class MinimalPublisher : public rclcpp::Node {
+ public:
+  MinimalPublisher() : Node("minimal_publisher"), count_(0) {
     publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
     timer_ = this->create_wall_timer(
-      500ms, std::bind(&MinimalPublisher::timer_callback, this));
+        500ms, std::bind(&MinimalPublisher::timer_callback, this));
   }
 
-private:
-  void timer_callback()
-  {
+ private:
+  void timer_callback() {
     auto message = std_msgs::msg::String();
     message.data = "Hello, from MAGE student " + std::to_string(count_++);
     RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
@@ -45,8 +41,7 @@ private:
   size_t count_;
 };
 
-int main(int argc, char * argv[])
-{
+int main(int argc, char* argv[]) {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<MinimalPublisher>());
   rclcpp::shutdown();
