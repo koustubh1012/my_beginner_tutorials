@@ -24,9 +24,10 @@ using namespace std::chrono_literals;
 class MinimalPublisher : public rclcpp::Node {
  public:
   MinimalPublisher() : Node("minimal_publisher"), count_(0) {
+    this->declare_parameter("publisher_rate", 500);
+    publisher_rate_ = std::chrono::milliseconds(this->get_parameter("publisher_rate").as_int());
     publisher_ = this->create_publisher<std_msgs::msg::String>("topic", 10);
-    timer_ = this->create_wall_timer(
-        500ms, std::bind(&MinimalPublisher::timer_callback, this));
+    timer_ = this->create_wall_timer(publisher_rate_, std::bind(&MinimalPublisher::timer_callback, this));
     service_ = this->create_service<beginner_tutorials::srv::ModifyString>(
         "modify_string", std::bind(&MinimalPublisher::changeString, this, std::placeholders::_1, std::placeholders::_2));
   }
@@ -42,7 +43,7 @@ class MinimalPublisher : public rclcpp::Node {
                     const std::shared_ptr<beginner_tutorials::srv::ModifyString::Response> response){
     service_message = request->input;
     response->output = request->input;
-    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request\na: [%s]",request->input.c_str());                                         // CHANGE
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Incoming request, Change string to: [%s]",request->input.c_str());
     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "sending back response: [%s]", response->output.c_str());
   }
   rclcpp::TimerBase::SharedPtr timer_;
@@ -50,6 +51,7 @@ class MinimalPublisher : public rclcpp::Node {
   size_t count_;
   std::string service_message = "Koustubh";
   rclcpp::Service<beginner_tutorials::srv::ModifyString>::SharedPtr service_;
+  std::chrono::milliseconds publisher_rate_;
 };
 
 int main(int argc, char* argv[]) {
