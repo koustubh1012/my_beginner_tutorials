@@ -1,3 +1,4 @@
-koustubh@kstb:~/ENPM700_ws$ cpplint --filter=-legal/copyright,-build/c++11,+build/c++17,-build/namespaces,-build/include_order $(find . -name *.cpp | grep -v "/build/")
-Done processing ./src/beginner_tutorials/src/publisher_member_function.cpp
-Done processing ./src/beginner_tutorials/src/subscriber_member_function.cpp
+koustubh@kstb:~/ENPM700_ws/src/beginner_tutorials$ cpplint --filter=-legal/copyright,-build/c++11,+build/c++17,-build/namespaces,-build/include_order $(find . -name *.cpp | grep -v "/build/")
+Done processing ./src/modify_string_client.cpp
+Done processing ./src/publisher_member_function.cpp
+Done processing ./src/subscriber_member_function.cpp
