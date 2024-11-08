@@ -2,7 +2,7 @@
  * @file publisher_member_function.cpp
  * @author koustubh (koustubh@umd.edu)
  * @brief This file contains a simple ROS2 cpp publisher node
- * @version 0.2
+ * @version 2.0
  * @date 2024-11-04
  *
  * @copyright Copyright (c) 2024
@@ -14,6 +14,7 @@
 #include <memory>
 #include <rclcpp/logger.hpp>
 #include <rclcpp/logging.hpp>
+#include <stdexcept>
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
@@ -30,6 +31,7 @@ using PARAMETER_HANDLE = std::shared_ptr<rclcpp::ParameterCallbackHandle>;
 class MinimalPublisher : public rclcpp::Node {
  public:
   MinimalPublisher() : Node("minimal_publisher"), count_(0) {
+    this->get_logger().set_level(rclcpp::Logger::Level::Debug);
     // Set up the "freq" parameter with a default value of 2 Hz and a description
     auto param_desc = rcl_interfaces::msg::ParameterDescriptor();
     param_desc.description = "Set callback frequency.";
@@ -57,7 +59,10 @@ class MinimalPublisher : public rclcpp::Node {
   void timer_callback() {
     auto message = STRING();
     message.data = "Hello, from " + service_message + " : " + std::to_string(count_++);
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
+    RCLCPP_INFO_STREAM(this->get_logger(), "Publishing: ' " << message.data.c_str() << "'");
+    if (count_%10 == 0){
+      RCLCPP_DEBUG_STREAM(this->get_logger(), "Current publisher rate: " << this->get_parameter("freq").as_double());
+    }
     publisher_->publish(message);
   }
 
@@ -66,14 +71,17 @@ class MinimalPublisher : public rclcpp::Node {
                     const std::shared_ptr<beginner_tutorials::srv::ModifyString::Response> response) {
     service_message = request->input;
     response->output = request->input;
-    RCLCPP_INFO(this->get_logger(), "Incoming request, Change string to: [%s]", request->input.c_str());
-    RCLCPP_INFO(this->get_logger(), "Sending back response: [%s]", response->output.c_str());
+    RCLCPP_INFO_STREAM(this->get_logger(), "Incoming request, Change string to: [" << request->input.c_str() << "]");
+    RCLCPP_INFO_STREAM(this->get_logger(), "Sending back response: [" << response->output.c_str() << "]");
   }
 
   // Callback to handle frequency parameter updates dynamically
   void param_callback(const rclcpp::Parameter & param) {
-    RCLCPP_INFO(this->get_logger(), "cb: Received an update to parameter \"%s\" of type %s: %.2f",
-                param.get_name().c_str(), param.get_type_name().c_str(), param.as_double());
+    RCLCPP_WARN_STREAM(this->get_logger(), "cb: Updated Frequency To: " << param.as_double());
+
+    if (param.as_double() > 1000.0){
+      RCLCPP_WARN_STREAM(this->get_logger(), "Frequency too high, might not able to publish at same rate");
+    }
 
     // Update the timer with the new frequency
     auto period = std::chrono::milliseconds(static_cast<int>(1000 / param.as_double()));

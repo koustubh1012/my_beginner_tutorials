@@ -2,7 +2,7 @@
  * @file modify_string_client.cpp
  * @author koustubh (koustubh@umd.edu)
  * @brief A cpp file to run a client to call modify_string service
- * @version 0.1
+ * @version 2.0
  * @date 2024-11-05
  * 
  * @copyright Copyright (c) 2024
@@ -28,7 +28,7 @@ int main(int argc, char **argv){
     rclcpp::init(argc, argv);
 
     if(argc<2){
-        RCLCPP_ERROR(rclcpp::get_logger("rclpcpp"), "Usage: pass a string");
+        RCLCPP_FATAL_STREAM(rclcpp::get_logger("rclpcpp"), "Usage: pass a string");
     }
     auto client = std::make_shared<ServiceClient>();
 
@@ -37,10 +37,10 @@ int main(int argc, char **argv){
 
     while(!client->client_->wait_for_service(std::chrono::seconds(1))) {
         if (!rclcpp::ok()) {
-            RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
+            RCLCPP_ERROR_STREAM(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
             return 0;
         }
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+        RCLCPP_WARN_STREAM(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
     }
 
     auto result = client->client_->async_send_request(request);
@@ -48,9 +48,9 @@ int main(int argc, char **argv){
 
     if (rclcpp::spin_until_future_complete(client, result) == rclcpp::FutureReturnCode::SUCCESS)
     {
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "RESPONSE: string set to: [%s]", result.get()->output.c_str());
+        RCLCPP_INFO_STREAM(rclcpp::get_logger("rclcpp"), "RESPONSE: string set to: " << result.get()->output.c_str());
     } else {
-        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "SERVICE CALL FAILED");
+        RCLCPP_ERROR_STREAM(rclcpp::get_logger("rclcpp"), "SERVICE CALL FAILED");
     }
 
     rclcpp::shutdown();
