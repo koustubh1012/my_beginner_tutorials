@@ -20,8 +20,9 @@
 #include "beginner_tutorials/srv/modify_string.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "tf2_ros/transform_broadcaster.h"
 
-// using std::placeholders::_1;
 using STRING = std_msgs::msg::String;
 using PUBLISHER = rclcpp::Publisher<STRING>::SharedPtr;
 using TIMER = rclcpp::TimerBase::SharedPtr;
@@ -67,6 +68,10 @@ class MinimalPublisher : public rclcpp::Node {
         "modify_string",
         std::bind(&MinimalPublisher::changeString, this, std::placeholders::_1,
                   std::placeholders::_2));
+
+    // Initialised tf broadcaster
+    tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+
   }
 
  private:
@@ -87,6 +92,22 @@ class MinimalPublisher : public rclcpp::Node {
                               << this->get_parameter("freq").as_double());
     }
     publisher_->publish(message);
+
+    rclcpp::Time now = this->get_clock()->now();
+
+    geometry_msgs::msg::TransformStamped t;
+    t.header.stamp = now;
+    t.header.frame_id = "world";
+    t.child_frame_id = "talker";
+    t.transform.translation.x = 1.0;
+    t.transform.translation.y = 2.0;
+    t.transform.translation.z = 3.0;
+    t.transform.rotation.x = 0.707;
+    t.transform.rotation.y = 0.707;
+    t.transform.rotation.z = 0.0;
+    t.transform.rotation.w = 0.0;
+
+    tf_broadcaster_->sendTransform(t);
   }
 
   /**
@@ -141,6 +162,7 @@ class MinimalPublisher : public rclcpp::Node {
   rclcpp::Service<beginner_tutorials::srv::ModifyString>::SharedPtr service_;
   PARAMETER_EVENT m_param_subscriber_;
   PARAMETER_HANDLE m_param_handle_;
+  std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 };
 
 int main(int argc, char* argv[]) {
