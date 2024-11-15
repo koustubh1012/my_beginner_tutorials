@@ -18,9 +18,9 @@
 #include <string>
 
 #include "beginner_tutorials/srv/modify_string.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 
 using STRING = std_msgs::msg::String;
@@ -71,7 +71,6 @@ class MinimalPublisher : public rclcpp::Node {
 
     // Initialised tf broadcaster
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
-
   }
 
  private:
