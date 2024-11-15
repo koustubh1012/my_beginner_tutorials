@@ -15,6 +15,7 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(catch_ros2 REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(rosbag2 REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ModifyString.srv"
